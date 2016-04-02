@@ -79,12 +79,12 @@ def CheckCredentials(connection_string,address_string):
             name = Receive(connection_string)
             if name in users:
                     Send(connection_string,"00000002")
-                    return 1        #Invalid name
+                    return 1            #Invalid name
             else:
                 Send(connection_string,"00000001")
-                return 0            #Good name
+                return 0                #Good name
     else:
-        return 2                    #Ip alredy loged
+        return 2                        #Ip alredy loged
 
 def StartSever():
     HOST=''
