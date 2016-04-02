@@ -1,4 +1,8 @@
 Enter new name		= 00000000
-Enter name good		= 00000001
-Enter name exception	= 00000002
+Good credentials	= 00000001
+Bad credentials		= 00000002
 Closing connection	= 00000003
+Log In			= 00000004
+Sign up			= 00000005
+Good sing up		= 00000006
+Bad username		= 00000007

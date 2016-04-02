@@ -12,6 +12,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def StopServer():
     s.close()
+    return
 
 def PrintMenu():
     menu_list=["1.Start Server","2.Exit"]
@@ -54,12 +55,20 @@ def GetInputFromStartMenu():
     return choice
 
 def StartMenu():
-    while True:
+    ok =False
+    while ok is False:
         PrintStartMenu()
         choice=GetInputFromStartMenu()
         if(choice == 1):
             StopServer()
-            main()
+            ok=True
+        elif choice ==2:
+            PrintOnlineMembers()
+        elif choice == 3:
+            StopServer()
+            ok = True
+            exit()
+    main()
 
 def Encode(str):
     
@@ -82,6 +91,7 @@ def GetData(connection_string,address_string):
 
     return
 
+<<<<<<< HEAD
 def CheckCredentials(connection_string, address_string):
     name = Receive(connection_string)
     password = Receive(connection_string)
@@ -137,6 +147,11 @@ def CheckCredential(connection_string,address_string):
                 return 0                #Good name
     else:
         return 2                        #Ip alredy loged
+=======
+def CheckCredentials(connection_string,address_string):
+    name = Receive(connection_string)
+    password = Receive(connection_string)
+>>>>>>> b5e93d70a9f29b258213c664503997b01ae410bd
 
 def CreateDataBase():#option to create a database on the host and use that database
     dbpath = "users.db"
@@ -154,6 +169,29 @@ def CreateDataBase():#option to create a database on the host and use that datab
     except Exception:
         pass
 
+def LogInOrSignUp(connection_string,address_string):
+    msg=Receive(connection_string)
+    if msg == "00000004":
+        if CheckCredentials(connection_string,address_string) == True:
+            Send(connection_string,"00000001")
+            t=threading.Thread(target = GetData,args=(connection_string,address_string))
+            t.daemon=True
+            t.start()
+            while True:
+                pass
+        else:
+            Send(connection_string,"00000002")
+            connection_string.close()
+    elif msg == "00000005":
+        error = CreateNewUser(connection_string)
+        if error == 1:
+            Send(connection_string,"00000006")
+            connection_strgin.close()
+        elif error == 2:
+            Send(connection_string,"00000007")
+        elif error == 3:
+        
+
 def StartSever():
     HOST=''
     PORT=50000
@@ -167,19 +205,9 @@ def StartSever():
     while True:
         s.listen(1)
         connection_string,address_string=s.accept()
-        if CheckCredentials(connection_string,address_string) == 0:
-            Send(connection_string,"00000001")
-            new_dict={address_string : name}
-            users.update(new_dict)
-            new_dict.clear()
-            with print_lock:
-                print "\""+name+"\"just connected!"
-            t=threading.Thread(target = GetData,args=(connection_string,address_string))
-            t.daemon=True
-            t.start()
-        else:
-            Send(connection_string,"00000003")
-            connection_string.close()
+        t=threading.Thread(target = LogInOrSignUp,args=(connection_string,address_string))
+        t.daemon=True
+        t.start()
 
 def Select(choice):
     if(choice == 1):
