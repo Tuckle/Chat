@@ -82,8 +82,8 @@ def Send(connection_string,msg):
     msg=Encode(msg)
     connection_string.send(msg)
 
-def Receive(connection_string):
-    msg=connection_string.recv(16)
+def Receive(connection_string,length=8):
+    msg=connection_string.recv(length)
     msg=Decode(msg)
     return msg
 
