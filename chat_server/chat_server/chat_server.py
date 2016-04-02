@@ -71,7 +71,7 @@ def StartMenu():
     main()
 
 def Encode(str):
-    
+
     return str
 
 def Decode(str):
@@ -170,8 +170,12 @@ def LogInOrSignUp(connection_string,address_string):
             Send(connection_string,"00000006")
             connection_strgin.close()
         elif error == 2:
-            Send(connection_string,"00000007")
+            Send(connection_string,"00000008")
         elif error == 3:
+            Send(connection_string,"00000009")
+        elif error ==4:
+            Send(connection_string,"00000007")
+        connection_string.close()
 
 def StartSever():
     HOST=''
