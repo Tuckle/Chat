@@ -3,10 +3,15 @@ import socket,thread,threading,sqlite3
 global users
 global connections
 global index
+global s
 
 users = dict()
 print_lock=threading.Lock()
 index=0
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def StopServer():
+    s.close()
 
 def PrintMenu():
     menu_list=["1.Start Server","2.Exit"]
@@ -51,7 +56,10 @@ def GetInputFromStartMenu():
 def StartMenu():
     while True:
         PrintStartMenu()
-        GetInputFromStartMenu()
+        choice=GetInputFromStartMenu()
+        if(choice == 1):
+            StopServer()
+            main()
 
 def Encode(str):
     
@@ -104,7 +112,6 @@ def CreateDataBase():
 def StartSever():
     HOST=''
     PORT=50000
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST,PORT))
     CreateDataBase()
     with print_lock:
