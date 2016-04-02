@@ -91,7 +91,6 @@ def GetData(connection_string,address_string):
 
     return
 
-<<<<<<< HEAD
 def CheckCredentials(connection_string, address_string):
     name = Receive(connection_string)
     password = Receive(connection_string)
@@ -136,23 +135,6 @@ def CreateNewUser(connection_string, address_string):
     except Exception:
         return 3 #not being able to check in database
 
-def CheckCredential(connection_string,address_string):
-    if address_string not in users:
-            name = Receive(connection_string)
-            if name in users:
-                    Send(connection_string,"00000002")
-                    return 1            #Invalid name
-            else:
-                Send(connection_string,"00000001")
-                return 0                #Good name
-    else:
-        return 2                        #Ip alredy loged
-=======
-def CheckCredentials(connection_string,address_string):
-    name = Receive(connection_string)
-    password = Receive(connection_string)
->>>>>>> b5e93d70a9f29b258213c664503997b01ae410bd
-
 def CreateDataBase():#option to create a database on the host and use that database
     dbpath = "users.db"
     try:
@@ -190,7 +172,6 @@ def LogInOrSignUp(connection_string,address_string):
         elif error == 2:
             Send(connection_string,"00000007")
         elif error == 3:
-        
 
 def StartSever():
     HOST=''
