@@ -6,3 +6,5 @@ Log In			= 00000004
 Sign up			= 00000005
 Good sing up		= 00000006
 Bad username		= 00000007
+Complete all fields	= 00000008
+Bad Connection to db	= 00000009
