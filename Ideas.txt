@@ -1,0 +1,10 @@
+1.  Sa dea Wi-Fi
+2.  Sa poti sa faci converastii in grup
+3.  Sa poti sa faci un grup in care sa uploadezi file-uri
+4.  Share screen
+5.  Video call
+6.  Voice call
+7.  Send files
+8.  Editor de cod live
+9.  Text editor pt facultate
+10. ssh la fenrrir(de interesat) - un fel de putty
