@@ -82,7 +82,51 @@ def GetData(connection_string,address_string):
 
     return
 
-def CheckCredentials(connection_string,address_string):
+def CheckCredentials(connection_string, address_string):
+    name = Receive(connection_string)
+    password = Receive(connection_string)
+    try:
+        conn = sqlite3.connect("users.db")
+        c = conn.cursor()
+
+        c.execute("SELECT username, password FROM Members WHERE username='%s'" % (name))
+        data = c.fetchall()
+        c.close()
+        conn.close()
+        
+        if len(data) == 0 or data[0][1] != password:
+            return False
+        return True
+    except Exception:
+        return False
+
+def CreateNewUser(connection_string, address_string):
+    username = Receive(connection_string)
+    password = Receive(connection_string)
+    realname = Receive(connection_string)
+
+    if len(username) == 0 or len(password) == 0 or len(realname) == 0:
+        return 2 #basic check gone wrong
+
+    try:
+        conn = sqlite3.connect("users.db")
+        c = conn.cursor()
+
+        c.execute("SELECT username, password FROM Members WHERE username='%s';", (username))
+        data = c.fetchall()
+        if len(data) != 0:
+            c.close()
+            conn.close()
+            return 4 #username already exists
+        c.execute("INSERT into Members values('%s', '%s', '%s', '%s');", address_string, username, password, realname)
+        c.commit()
+        c.close()
+        conn.close()
+        return 1 #username added successfuly
+    except Exception:
+        return 3 #not being able to check in database
+
+def CheckCredential(connection_string,address_string):
     if address_string not in users:
             name = Receive(connection_string)
             if name in users:
@@ -94,7 +138,7 @@ def CheckCredentials(connection_string,address_string):
     else:
         return 2                        #Ip alredy loged
 
-def CreateDataBase():
+def CreateDataBase():#option to create a database on the host and use that database
     dbpath = "users.db"
     try:
         db = open(dbpath, "w")#creating database if not exists
@@ -104,6 +148,7 @@ def CreateDataBase():
         c = conn.cursor()
         c.execute("CREATE TABLE IF NOT EXISTS Members(ip TEXT, username TEXT, password TEXT, realname TEXT);")
         c.execute("CREATE TABLE IF NOT EXISTS Online(username TEXT, ip TEXT, id TEXT);")
+        c.commit()
         c.close()
         conn.close()
     except Exception:
