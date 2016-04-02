@@ -86,11 +86,27 @@ def CheckCredentials(connection_string,address_string):
     else:
         return 2                    #Ip alredy loged
 
+def CreateDataBase():
+    dbpath = "users.db"
+    try:
+        db = open(dbpath, "w")#creating database if not exists
+        db.close()
+
+        conn = sqlite3.connect(dbpath)
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS Members(ip TEXT, username TEXT, password TEXT, realname TEXT);")
+        c.execute("CREATE TABLE IF NOT EXISTS Online(username TEXT, ip TEXT, id TEXT);")
+        c.close()
+        conn.close()
+    except Exception:
+        pass
+
 def StartSever():
     HOST=''
     PORT=50000
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST,PORT))
+    CreateDataBase()
     with print_lock:
         print "Sever Started!"
     t=threading.Thread(target=StartMenu,name="Start Menu")
