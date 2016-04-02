@@ -1,0 +1,4 @@
+Enter new name		= 00000000
+Enter name good		= 00000001
+Enter name exeption	= 00000002
+Closing connection	= 00000003
