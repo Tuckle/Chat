@@ -1,14 +1,8 @@
 import socket,thread,threading,sqlite3
 
-global users
-global connections
-global index
 global s
-
-users = dict()
-print_lock=threading.Lock()
-index=0
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print_lock=threading.Lock()
 
 def StopServer():
     s.close()
@@ -88,7 +82,7 @@ def Receive(connection_string,length=8):
     return msg
 
 def GetData(connection_string,address_string):
-
+    
     return
 
 def CheckCredentials(connection_string, address_string):
