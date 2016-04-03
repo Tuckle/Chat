@@ -37,7 +37,16 @@ namespace Chat_client
         {
             TcpClient client = new TcpClient();
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(HOST), int.Parse(PORT));
-            client.Connect(ep);
+            try
+            {
+                client.Connect(ep);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
+                return;
+            }
+            
             string name = textBox1.Text;
             string password = textBox2.Text;
             NetworkStream stream = client.GetStream();
