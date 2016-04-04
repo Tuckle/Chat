@@ -1,7 +1,5 @@
 import socket,thread,threading,sqlite3
 
-global s
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print_lock=threading.Lock()
 
 def StopServer():
@@ -76,10 +74,13 @@ def Send(connection_string,msg):
     msg=Encode(msg)
     connection_string.send(msg)
 
-def Receive(connection_string,length=8):
+def Receive(connection_string,length=16):
     msg=connection_string.recv(length)
-    msg=Decode(msg)
-    return msg
+    if not msg:
+        return False
+    else:
+        msg=Decode(msg)
+        return msg
 
 def GetData(connection_string,address_string):
     
@@ -88,6 +89,8 @@ def GetData(connection_string,address_string):
 def CheckCredentials(connection_string, address_string):
     name = Receive(connection_string)
     password = Receive(connection_string)
+    print name
+    print password
     try:
         conn = sqlite3.connect("users.db")
         c = conn.cursor()
@@ -107,7 +110,9 @@ def CreateNewUser(connection_string, address_string):
     username = Receive(connection_string)
     password = Receive(connection_string)
     realname = Receive(connection_string)
-
+    print username
+    print password
+    print realname
     if len(username) == 0 or len(password) == 0 or len(realname) == 0:
         return 2 #basic check gone wrong
 
@@ -147,33 +152,40 @@ def CreateDataBase():#option to create a database on the host and use that datab
 
 def LogInOrSignUp(connection_string,address_string):
     msg=Receive(connection_string)
-    if msg == "00000004":
-        if CheckCredentials(connection_string,address_string) == True:
-            Send(connection_string,"00000001")
-            t=threading.Thread(target = GetData,args=(connection_string,address_string))
-            t.daemon=True
-            t.start()
-            while True:
-                pass
-        else:
-            Send(connection_string,"00000002")
+    if not msg:
+        pass
+    else:
+        print msg
+        if msg == "00000004":
+            if CheckCredentials(connection_string,address_string) == True:
+                Send(connection_string,"00000001")
+                t=threading.Thread(target = GetData,args=(connection_string,address_string))
+                t.daemon=True
+                t.start()
+                while t.is_alive():
+                    pass
+            else:
+                Send(connection_string,"00000002")
+                connection_string.close()
+        elif msg == "00000005":
+            error = CreateNewUser(connection_string,address_string)
+            print error
+            if error == 1:
+                Send(connection_string,"00000006")
+                connection_strgin.close()
+            elif error == 2:
+                Send(connection_string,"00000008")
+            elif error == 3:
+                Send(connection_string,"00000009")
+            elif error ==4:
+                Send(connection_string,"00000007")
             connection_string.close()
-    elif msg == "00000005":
-        error = CreateNewUser(connection_string)
-        if error == 1:
-            Send(connection_string,"00000006")
-            connection_strgin.close()
-        elif error == 2:
-            Send(connection_string,"00000008")
-        elif error == 3:
-            Send(connection_string,"00000009")
-        elif error ==4:
-            Send(connection_string,"00000007")
-        connection_string.close()
 
 def StartSever():
     HOST=''
-    PORT=50000
+    PORT=40000
+    global s
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST,PORT))
     CreateDataBase()
     with print_lock:
