@@ -13,27 +13,32 @@ using System.Net.Mail;
 
 namespace Chat_client
 {
-    public partial class Form1 : Form
+    public partial class Form2 : Form
     {
         string HOST = "127.0.0.1";
         string PORT = "40000";
-        public Form1()
+        public Form2()
         {
             InitializeComponent();
-            
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
 
         private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Wait()
+        {
+            for (int i = 0; i <= 1000000; i++)
+                continue;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(HOST), int.Parse(PORT));
@@ -46,13 +51,16 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            
-            string name = textBox1.Text;
+
+            string username = textBox1.Text;
             string password = textBox2.Text;
-            if (name.Length == 0)
-                name = "1";
+            string name = textBox3.Text;
+            if (username.Length == 0)
+                username = "1";
             if (password.Length == 0)
                 password = "1";
+            if (name.Length == 0)
+                name = "1";
             NetworkStream stream;
             try
             {
@@ -63,10 +71,11 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            Byte[] name_data = System.Text.Encoding.ASCII.GetBytes(name);
-            Byte[] password_data = System.Text.Encoding.ASCII.GetBytes(password);
-            string code = "00000004";
+            string code = "00000005";
             Byte[] code_data = System.Text.Encoding.ASCII.GetBytes(code);
+            Byte[] username_data = System.Text.Encoding.ASCII.GetBytes(username);
+            Byte[] password_data = System.Text.Encoding.ASCII.GetBytes(password);
+            Byte[] name_data = System.Text.Encoding.ASCII.GetBytes(name);
             try
             {
                 stream.Write(code_data, 0, code_data.Length);
@@ -76,21 +85,17 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            int i = 0;
-            while (i < 1000000)
-                 i++;
+            Wait();
             try
             {
-                stream.Write(name_data, 0, name_data.Length);
+                stream.Write(username_data, 0, username_data.Length);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            i = 0;
-            while (i < 1000000)
-                i++;
+            Wait();
             try
             {
                 stream.Write(password_data, 0, password_data.Length);
@@ -100,47 +105,32 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
+            Wait();
+            try
+            {
+                stream.Write(name_data, 0, name_data.Length);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
+                return;
+            }
+            Wait();
             stream.Read(code_data, 0, 8);
             code = System.Text.Encoding.ASCII.GetString(code_data);
-            if (code == "00000002")
-            {
-                string message = "Invaild username or password!";
-                string title = "Warning";
-                MessageBoxButtons b = MessageBoxButtons.OK;
-                MessageBox.Show(message, title, b);
-                stream.Close();
-                client.Close();
-            }
-                
+            if (code == "00000006")
+                MessageBox.Show( "Sign in successful!", "Information", MessageBoxButtons.OK);
+            else if (code == "00000007")
+                MessageBox.Show( "Username already used!", "Warning", MessageBoxButtons.OK);
+            else if (code == "00000008")
+                MessageBox.Show( "Please complete all fields!", "Warning", MessageBoxButtons.OK);
+            else if (code == "00000009")
+                MessageBox.Show( "Can not connect to server", "Warning", MessageBoxButtons.OK);
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button3_Click(object sender, EventArgs e)
+    private void button3_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            Form2 form = new Form2();
-            form.Show();
-            form.FormClosed += new FormClosedEventHandler(form_FormClose);
-            this.Hide();
-            
-        }
-
-        private void form_FormClose(object sender, FormClosedEventArgs e)
-        {
-            this.Show();
         }
     }
 }
