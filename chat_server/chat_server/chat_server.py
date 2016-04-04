@@ -83,7 +83,9 @@ def Receive(connection_string,length=16):
         return msg
 
 def GetData(connection_string,address_string):
-    
+    msg=Receive(connection_string,1024)
+    if not msg:
+        return
     return
 
 def CheckCredentials(connection_string, address_string):
@@ -153,7 +155,7 @@ def CreateDataBase():#option to create a database on the host and use that datab
 def LogInOrSignUp(connection_string,address_string):
     msg=Receive(connection_string)
     if not msg:
-        pass
+        return
     else:
         print msg
         if msg == "00000004":
