@@ -20,7 +20,13 @@ namespace Chat_client
         public Form1()
         {
             InitializeComponent();
-            
+
+        }
+
+        private void Wait()
+        {
+            for (int i = 0; i <= 1000000; i++)
+                continue;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -76,9 +82,7 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            int i = 0;
-            while (i < 1000000)
-                 i++;
+            Wait();
             try
             {
                 stream.Write(name_data, 0, name_data.Length);
@@ -88,9 +92,7 @@ namespace Chat_client
                 MessageBox.Show("Can not conncet to server.", "Warning", MessageBoxButtons.OK);
                 return;
             }
-            i = 0;
-            while (i < 1000000)
-                i++;
+            Wait();
             try
             {
                 stream.Write(password_data, 0, password_data.Length);
@@ -111,7 +113,20 @@ namespace Chat_client
                 stream.Close();
                 client.Close();
             }
+            else if(code =="00000001")
+            {
+                MessageBox.Show("Log in Successful!", "Information", MessageBoxButtons.OK);
+                Form3 form = new Form3();
+                form.Show();
+                form.FormClosed += new FormClosedEventHandler(form_FormClose);
+                this.Hide();
+            }
                 
+        }
+
+        private void form_FormClose(object seder,EventArgs e)
+        {
+            this.Show();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

@@ -171,7 +171,7 @@ def LogInOrSignUp(connection_string,address_string):
             print error
             if error == 1:
                 Send(connection_string,"00000006")
-                connection_strgin.close()
+                connection_string.close()
             elif error == 2:
                 Send(connection_string,"00000008")
             elif error == 3:
