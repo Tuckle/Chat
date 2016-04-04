@@ -1,4 +1,4 @@
-import socket,thread,threading,sqlite3
+import socket,thread,threading,sqlite3,struct
 
 print_lock=threading.Lock()
 
@@ -80,7 +80,7 @@ def Receive(connection_string,length=16):
         return False
     else:
         msg=Decode(msg)
-        return msg
+        return str(msg)
 
 def GetData(connection_string,address_string):
     
@@ -110,9 +110,6 @@ def CreateNewUser(connection_string, address_string):
     username = Receive(connection_string)
     password = Receive(connection_string)
     realname = Receive(connection_string)
-    print username
-    print password
-    print realname
     if len(username) == 0 or len(password) == 0 or len(realname) == 0:
         return 2 #basic check gone wrong
 
@@ -120,18 +117,18 @@ def CreateNewUser(connection_string, address_string):
         conn = sqlite3.connect("users.db")
         c = conn.cursor()
 
-        c.execute("SELECT username, password FROM Members WHERE username='%s';", (username))
+        c.execute("SELECT username, password FROM Members WHERE username='%s';" % (username))
         data = c.fetchall()
         if len(data) != 0:
             c.close()
             conn.close()
             return 4 #username already exists
-        c.execute("INSERT into Members values('%s', '%s', '%s', '%s');", address_string, username, password, realname)
-        c.commit()
+        c.execute("INSERT INTO Members VALUES('%s', '%s', '%s', '%s');" % (address_string[0], username, password, realname))
+        conn.commit()
         c.close()
         conn.close()
         return 1 #username added successfuly
-    except Exception:
+    except Exception as error:
         return 3 #not being able to check in database
 
 def CreateDataBase():#option to create a database on the host and use that database
@@ -195,7 +192,7 @@ def StartSever():
     t.start()
     while True:
         s.listen(1)
-        connection_string,address_string=s.accept()
+        connection_string,address_string = s.accept()
         t=threading.Thread(target = LogInOrSignUp,args=(connection_string,address_string))
         t.daemon=True
         t.start()
