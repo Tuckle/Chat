@@ -119,13 +119,16 @@ namespace Chat_client
             stream.Read(code_data, 0, 8);
             code = System.Text.Encoding.ASCII.GetString(code_data);
             if (code == "00000006")
-                MessageBox.Show( "Sign in successful!", "Information", MessageBoxButtons.OK);
+            {
+                MessageBox.Show("Sign in successful!", "Information", MessageBoxButtons.OK);
+                this.Close();
+            }
             else if (code == "00000007")
-                MessageBox.Show( "Username already used!", "Warning", MessageBoxButtons.OK);
+                MessageBox.Show("Username already used!", "Warning", MessageBoxButtons.OK);
             else if (code == "00000008")
-                MessageBox.Show( "Please complete all fields!", "Warning", MessageBoxButtons.OK);
+                MessageBox.Show("Please complete all fields!", "Warning", MessageBoxButtons.OK);
             else if (code == "00000009")
-                MessageBox.Show( "Can not connect to server", "Warning", MessageBoxButtons.OK);
+                MessageBox.Show("Can not connect to server", "Warning", MessageBoxButtons.OK);
         }
 
     private void button3_Click(object sender, EventArgs e)

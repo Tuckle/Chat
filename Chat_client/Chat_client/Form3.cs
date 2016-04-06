@@ -44,7 +44,7 @@ namespace Chat_client
             stream.Write(msg_data, 0, msg_data.Length);
             Wait();
             stream.Close();
-            //client.Close();
+            client.Close();
         }
 
         private void systemToolStripMenuItem_Click(object sender, EventArgs e)
@@ -62,6 +62,10 @@ namespace Chat_client
         {
             SignOut();
             this.Close();
+        }
+        ~Form3()
+        {
+            SignOut();
         }
     }
 }
