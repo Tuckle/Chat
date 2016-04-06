@@ -1,4 +1,4 @@
-import socket,thread,threading,sqlite3,struct
+import socket, thread, threading, sqlite3, struct, os, time
 
 print_lock=threading.Lock()
 
@@ -89,6 +89,7 @@ def GetData(connection_string,address_string):
     return
 
 def CheckCredentials(connection_string, address_string):
+	#checks if exists the given record in database
     name = Receive(connection_string)
     password = Receive(connection_string)
     print name
@@ -99,7 +100,6 @@ def CheckCredentials(connection_string, address_string):
 
         c.execute("SELECT username, password FROM Members WHERE username='%s'" % (name))
         data = c.fetchall()
-        c.close()
         conn.close()
         
         if len(data) == 0 or data[0][1] != password:
@@ -127,27 +127,150 @@ def CreateNewUser(connection_string, address_string):
             return 4 #username already exists
         c.execute("INSERT INTO Members VALUES('%s', '%s', '%s', '%s');" % (address_string[0], username, password, realname))
         conn.commit()
-        c.close()
         conn.close()
         return 1 #username added successfuly
     except Exception as error:
         return 3 #not being able to check in database
 
-def CreateDataBase():#option to create a database on the host and use that database
+def CreateDataBase():
+	#option to create a database on the host and use that database
     dbpath = "users.db"
     try:
-        db = open(dbpath, "w")#creating database if not exists
-        db.close()
-
-        conn = sqlite3.connect(dbpath)
+    	#check if database exists in current file, if not create it
+    	if dbpath in os.listdir(os.getcwd()):
+    		pass
+    	else:
+    		with open(dbpath, "w+") as db:
+    			pass
+ 		#connect to database and add tables if they don't exists
+        conn = sqlite3.connect(dbpath)	
         c = conn.cursor()
         c.execute("CREATE TABLE IF NOT EXISTS Members(ip TEXT, username TEXT, password TEXT, realname TEXT);")
         c.execute("CREATE TABLE IF NOT EXISTS Online(username TEXT, ip TEXT, id TEXT);")
-        c.commit()
-        c.close()
+        c.execute("CREATE TABLE IF NOT EXISTS Log(date TEXT, username TEXT, action TEXT);")
+        conn.commit()
         conn.close()
-    except Exception:
-        pass
+    except Exception as error:
+    	#print error
+    	pass
+
+def LoggedUsers(username, ip, uid, online=True, removeall = False):
+	#removes/adds a user from online users or removes all users if removeall is enabled
+	dbpath = "users.db"
+	try:
+		conn = sqlite3.connect(dbpath)
+		c = conn.cursor()
+
+		if removeall is True:
+			c.execute("DROP Online")
+			c.execute("CREATE TABLE IF NOT EXISTS Online(username TEXT, ip TEXT, id TEXT);")
+			conn.commit()
+			conn.close()
+			return
+
+		if online is True:
+			c.execute("INSERT INTO Online VALUES('%s','%s',%s);" % (username, ip, uid))
+		else:
+			c.execute("DELETE FROM Online WHERE username='%s' AND ip='%s'" % (username, ip))
+		conn.commit()
+		conn.close()
+	except Exception as error:
+		#print error
+		pass
+
+def ClearDataBase():
+	#reinitialize the database
+	dbpath = "users.db"
+	if dbpath in os.listdir(os.getcwd()):
+		os.remove(dbpath)
+	CreateDataBase()
+
+def GetUsers():
+	#prints to the screen all users
+	dbpath = "users.db"
+	try:
+		conn = sqlite3.connect("users.db")
+		c = conn.cursor()
+		c.execute("select * from Members")
+		users = c.fetchall()
+		count = 1
+		for data in users:
+			print "User %d: Username: %s\tRealname: %s\tIP: %s" % (count, data[1], data[3], data[0])
+			count += 1
+		conn.close()
+	except Exception as error:
+		print error, "-> GetUsers"
+
+def RemoveUser(index = -1, username = ""):
+	#removes the index-th user from database or given username
+	dbpath = "users.db"
+	if index < 0 and username == "":
+		return
+	try:
+		conn = sqlite3.connect("users.db")
+		c = conn.cursor()
+		c.execute("SELECT * FROM Members")
+		users = c.fetchall()
+		count = 1
+		for data in users:
+			if count == index:
+				c.execute("DELETE FROM Members WHERE username='%s'" % (data[1]))
+				conn.commit()
+				conn.close()
+				return
+			elif username != "":
+				if username == data[1]:
+					c.execute("DELETE FROM Members WHERE username='%s'" % (data[1]))
+					conn.commit()
+					conn.close()
+					return
+			count += 1
+		conn.commit()
+		conn.close()
+	except Exception as error:
+		print error, "-> RemoveUser"
+
+def AddLogEvent(username, action):
+	#logs in database at current datetime the username and the action
+	dbpath = "users.db"
+	try:
+		conn = sqlite3.connect(dbpath)
+		c = conn.cursor()
+		c.execute("INSERT INTO Log VALUES('%s', '%s', '%s');" % (time.strftime("%c"), username, action))
+		conn.commit()
+		conn.close()
+	except Exception as error:
+		pass
+
+def ShowLog(tofile = False, filename = ""):
+	#prints the log to a file if tofile is True, otherwise prints to screen
+	if tofile is True:
+		if filename == "":
+			return
+		if filename not in os.listdir(os.getcwd()):
+			with open(filename, "w+") as file:
+				pass
+		with open(filename, "w+") as file:
+			try:
+				conn = sqlite3.connect("users.db")
+				c = conn.cursor()
+				c.execute("SELECT * FROM Log")
+				logs = c.fetchall()
+				for data in logs:
+					file.write("Date: %s\tUsername: %s\t Action: %s\n" % (data[0], data[1], data[2]))
+				conn.close()
+			except Exception as error:
+				pass
+	try:
+		conn = sqlite3.connect("users.db")
+		c = conn.cursor()
+		c.execute("SELECT * FROM Log")
+		logs = c.fetchall()
+		for data in logs:
+			print "Date: %s\tUsername: %s\t Action: %s\n" % (data[0], data[1], data[2])
+		conn.close()
+	except Exception as error:
+		pass
 
 def LogInOrSignUp(connection_string,address_string):
     msg=Receive(connection_string)
